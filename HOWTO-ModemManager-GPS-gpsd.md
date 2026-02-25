@@ -8,7 +8,7 @@
 - **Kernel:** 6.17.0-14-generic
 
 The EM7355 is a combined LTE modem and GPS receiver. On this tablet it appears
-as three USB serial ports and one MBIM control interface:
+as two USB serial ports and one MBIM control interface:
 
 ```
 ports: cdc-wdm2 (mbim), ttyUSB2 (at), wwan0 (net)
@@ -49,7 +49,7 @@ sudo apt-get install -y python3-dbus python3-gi gpsd gpsd-clients
 
 ## The Bridge Script
 
-Save as `/home/<user>/Documents/GPS/mm-nmea-bridge.py`:
+Save as `/usr/local/bin/mm-nmea-bridge.py` (or in another location of your choice):
 
 ```python
 #!/usr/bin/env python3
@@ -200,9 +200,7 @@ script if it differs from the default of 13:
 sudo python3 mm-nmea-bridge.py 15   # if your modem is index 15
 ```
 
-The index can change after a reboot if other modems are present. You can make
-the systemd service discover it dynamically by querying `mmcli -L` at startup,
-but for a single-modem system hardcoding it is reliable.
+The index can change after a reboot if other modems are present.
 
 ---
 
