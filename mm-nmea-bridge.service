@@ -1,0 +1,18 @@
+[Unit]
+Description=ModemManager → gpsd NMEA PTY bridge (Sierra Wireless EM7355)
+Documentation=file:///home/jtuttle/Documents/GPS/mm-nmea-bridge.py
+# Start after ModemManager is fully up; gpsd should start after us
+After=ModemManager.service
+Wants=ModemManager.service
+# If gpsd is managed by systemd, let it know we provide the device
+Before=gpsd.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /home/jtuttle/Documents/GPS/mm-nmea-bridge.py
+Restart=on-failure
+RestartSec=5s
+ExecStopPost=/bin/rm -f /run/nmea-bridge
+
+[Install]
+WantedBy=multi-user.target
