@@ -12,10 +12,13 @@ apt-get install -y --no-install-recommends \
     gpsd \
     gpsd-clients
 
-# ── 2. Install bridge service ──────────────────────────────────────────────────
+# ── 2. Install bridge script and service ──────────────────────────────────────
+echo "==> Installing mm-nmea-bridge.py → /usr/local/bin/…"
+cp "${SCRIPT_DIR}/mm-nmea-bridge.py" /usr/local/bin/mm-nmea-bridge.py
+chmod 755 /usr/local/bin/mm-nmea-bridge.py
+
 echo "==> Installing mm-nmea-bridge.service…"
 cp "${SCRIPT_DIR}/mm-nmea-bridge.service" /etc/systemd/system/
-systemctl daemon-reload
 
 # ── 3. Configure gpsd ─────────────────────────────────────────────────────────
 GPSD_DEFAULT=/etc/default/gpsd
@@ -39,8 +42,6 @@ After=mm-nmea-bridge.service
 Wants=mm-nmea-bridge.service
 EOF
 
-systemctl daemon-reload
-
 # ── 5. Disable gpsd socket activation ────────────────────────────────────────
 # gpsd.socket would let random clients trigger gpsd before the bridge creates
 # /run/nmea-bridge.  Disabling (not masking) prevents auto-start at boot while
@@ -50,8 +51,17 @@ echo "==> Disabling gpsd.socket auto-start…"
 systemctl unmask gpsd.socket 2>/dev/null || true
 systemctl disable gpsd.socket
 
-# ── 6. Enable and start ────────────────────────────────────────────────────────
+# ── 6. Install suspend/resume sleep hook ─────────────────────────────────────
+# After suspend/hibernate, ModemManager may assign the modem a new D-Bus path.
+# This hook restarts the bridge on resume so it re-discovers the modem cleanly.
+echo "==> Installing suspend/resume sleep hook…"
+SLEEP_HOOK=/lib/systemd/system-sleep/mm-nmea-bridge
+cp "${SCRIPT_DIR}/mm-nmea-bridge-sleep" "${SLEEP_HOOK}"
+chmod +x "${SLEEP_HOOK}"
+
+# ── 7. Enable and start ────────────────────────────────────────────────────────
 echo "==> Enabling services…"
+systemctl daemon-reload
 systemctl enable mm-nmea-bridge.service
 systemctl enable gpsd.service
 

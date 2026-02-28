@@ -1,0 +1,12 @@
+#!/bin/sh
+# /lib/systemd/system-sleep/mm-nmea-bridge
+#
+# Restart the NMEA bridge after the system resumes from suspend/hibernate.
+# On resume, ModemManager may re-enumerate the modem with a new D-Bus object
+# path; restarting the bridge allows it to re-discover the modem cleanly.
+
+case "$1" in
+    post)
+        systemctl restart mm-nmea-bridge.service
+        ;;
+esac

@@ -21,6 +21,18 @@ ModemManager ──(D-Bus)──► mm2gpsd ──(PTY)──► gpsd ──(TCP
 Once running, any application that consumes a `gpsd` TCP feed should
 "just work" when pointed at `localhost:2947`.
 
+## Suspend / Resume
+
+When the system suspends and resumes, ModemManager may re-enumerate the
+modem with a different D-Bus path, which would cause the bridge to stop
+forwarding NMEA. A [systemd-sleep hook][sleep-hook] (`mm-nmea-bridge-sleep`)
+is installed to `/lib/systemd/system-sleep/` by `install.sh`. It
+automatically restarts `mm-nmea-bridge.service` after every resume, allowing
+the bridge to re-discover the modem cleanly. GPS is typically restored within
+10–15 seconds of the system waking.
+
+[sleep-hook]: https://www.freedesktop.org/software/systemd/man/latest/systemd-sleep.html
+
 For example, [OpenCPN](https://opencpn.org/) for maritime navigation
 has been confirmed to work, as have `cgps` and `gpsmon`, but in theory
 many other applications that depend on NMEA from `gpsd` *should* work
@@ -51,6 +63,7 @@ bash check-gps.sh
 |------|---------|
 | `mm-nmea-bridge.py` | The bridge — auto-discovers the GPS modem and forwards NMEA to gpsd via a PTY |
 | `mm-nmea-bridge.service` | systemd unit (installed to `/etc/systemd/system/`) |
+| `mm-nmea-bridge-sleep` | systemd-sleep hook (installed to `/lib/systemd/system-sleep/`) |
 | `install.sh` | One-shot installer |
 | `check-gps.sh` | End-to-end diagnostic script |
 

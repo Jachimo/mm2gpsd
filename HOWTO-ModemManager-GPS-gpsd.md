@@ -217,7 +217,7 @@ Before=gpsd.service
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/python3 /home/<user>/Documents/GPS/mm-nmea-bridge.py 13
+ExecStart=/usr/bin/python3 /usr/local/bin/mm-nmea-bridge.py
 Restart=on-failure
 RestartSec=5s
 ExecStopPost=/bin/rm -f /run/nmea-bridge
@@ -535,7 +535,7 @@ bash ~/Documents/GPS/check-gps.sh
 
 | File | Purpose |
 |------|---------|
-| `~/Documents/GPS/mm-nmea-bridge.py` | Python bridge: ModemManager D-Bus → PTY |
+| `/usr/local/bin/mm-nmea-bridge.py` | Python bridge: ModemManager D-Bus → PTY (installed by `install.sh`) |
 | `~/Documents/GPS/mm-nmea-bridge.service` | systemd unit (copy to `/etc/systemd/system/`) |
 | `~/Documents/GPS/install.sh` | One-shot installer |
 | `~/Documents/GPS/check-gps.sh` | End-to-end diagnostic script |
